@@ -3,6 +3,7 @@ version 16
 __lua__
 function _init()
 	t=0	-- general ticker
+	game_over=false
 	make_player(24,60)
 	make_enemies(1)
 	fx1_init()
@@ -10,27 +11,36 @@ end
 
 function _update()
 	t+=1	-- increase ticker
-	move_player()
-	
-	-- test fx
-	if btnp(🅾️) then
-		for i=1,fx1.burst do
-			add_p(64,64,blow,fx1)
+ if (not game_over) then
+ 	move_player()
+		
+		for e in all(enemies) do
+			if player.x>e.x then
+				game_over=true 
+				for i=1,fx1.burst do
+					add_p(player.x,player.y,blow,fx1)
+				end
+			end
 		end
+	else
+		if btnp(❎) then _init() end
 	end
-	
 	update_fx(blow,fx1)
 end
 
 function _draw()
 	cls(14)	-- bg
 	rectfill(0,100,127,127,12) -- ocean
-	line(0,64,127,64,15) --half screen
-	line(64,0,64,127,15)
+
 	print("x:"..player.x,0,0,15)
 	print("y:"..player.y,0,8,15)
-	draw_player()
-	draw_enemies()
+	
+	if (not game_over) then
+		draw_player()
+		draw_enemies()
+	else
+		print("press ❎ to restart",30,60,15)
+	end	
 	draw_fx(blow,fx1)
 end
 -->8
@@ -84,14 +94,14 @@ end
 function fx1_init()
 	fx1={						-- settings for fx1 (blow)
 		g=0.1,						-- particle grav
-		max_vel=2,--	initial vel
+		max_vel=3,--	initial vel
 		min_time=2,	-- time between particles
 		max_time=5,
-		min_life=80,-- particle lifetime
-		max_life=100,
+		min_life=30,-- particle lifetime
+		max_life=50,
 		t=0,								-- particle ticker
 		cols={2,2,2,8,8,9,9,10}, -- colors
-		burst=50
+		burst=100
 	}
 	blow={}			-- empty table
 end
